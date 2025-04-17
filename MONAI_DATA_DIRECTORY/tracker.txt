@@ -1,0 +1,284 @@
+----------------------------------------------
+##############################################
+----------------------------------------------
+256_256_96: 
+Dice Metric on test set: 0.3431
+patch_size = (160, 160, 64)
+patch_size = (256, 256, 96)
+train_transforms = Compose(
+    [
+        LoadImaged(keys=["image", "label"]),
+        EnsureChannelFirstd(keys=["image", "label"]),
+        NormalizeIntensityd(
+            keys=["image"],
+            nonzero=True,
+            channel_wise=False
+        ),
+        CropForegroundd(keys=["image", "label"], source_key="image"),
+        Orientationd(keys=["image", "label"], axcodes="RAS"),
+        Spacingd(keys=["image", "label"], pixdim=(1.0, 1.0, 1.0), mode=("bilinear", "nearest")),
+
+        SpatialPadd(keys=["image", "label"], spatial_size=(256, 256, 96), mode='constant'),
+
+        RandCropByPosNegLabeld(
+            keys=["image", "label"],
+            label_key="label",
+            spatial_size=patch_size,
+            pos=1,
+            neg=1,
+            num_samples=4,
+            image_key="image",
+            image_threshold=0,
+        ),
+    ]
+)
+
+
+
+unet_transformer: 
+Dice Metric on test set: 0.4179
+patch_size = (160, 160, 64)
+train_transforms = Compose(
+    [
+        LoadImaged(keys=["image", "label"]),
+        EnsureChannelFirstd(keys=["image", "label"]),
+        NormalizeIntensityd(
+            keys=["image"],
+            nonzero=True,
+            channel_wise=False
+        ),
+        CropForegroundd(keys=["image", "label"], source_key="image"),
+        Orientationd(keys=["image", "label"], axcodes="RAS"),
+        Spacingd(keys=["image", "label"], pixdim=(1.0, 1.0, 1.0), mode=("bilinear", "nearest")),
+
+        RandCropByPosNegLabeld(
+            keys=["image", "label"],
+            label_key="label",
+            spatial_size=patch_size,
+            pos=1,
+            neg=1,
+            num_samples=4,
+            image_key="image",
+            image_threshold=0,
+        ),
+    ]
+)
+model = UNETR(
+    in_channels=1,
+    out_channels=3,
+    img_size=(160, 160, 64),
+    feature_size=16,
+    hidden_size=192,
+    mlp_dim=768,
+    num_heads=6,
+    norm_name='instance',
+    res_block=True,
+    dropout_rate=0.0,
+)
+----------------------------------------------
+##############################################
+----------------------------------------------
+four_levels_unet: 
+Dice Metric on test set: 0.4123
+patch_size = (160, 160, 64)
+train_transforms = Compose(
+    [
+        LoadImaged(keys=["image", "label"]),
+        EnsureChannelFirstd(keys=["image", "label"]),
+        NormalizeIntensityd(
+            keys=["image"],
+            nonzero=True,
+            channel_wise=False
+        ),
+        CropForegroundd(keys=["image", "label"], source_key="image"),
+        Orientationd(keys=["image", "label"], axcodes="RAS"),
+        Spacingd(keys=["image", "label"], pixdim=(1.0, 1.0, 1.0), mode=("bilinear", "nearest")),
+
+        RandFlipd(keys=["image", "label"], spatial_axis=[0], prob=0.5),
+        RandFlipd(keys=["image", "label"], spatial_axis=[1], prob=0.5),
+        RandFlipd(keys=["image", "label"], spatial_axis=[2], prob=0.5),
+        RandCropByPosNegLabeld(
+            keys=["image", "label"],
+            label_key="label",
+            spatial_size=patch_size,
+            pos=1,
+            neg=1,
+            num_samples=4,
+            image_key="image",
+            image_threshold=0,
+        ),
+    ]
+)
+model = UNet(
+    spatial_dims=3,
+    in_channels=1,
+    out_channels=3,
+    channels=(16, 32, 64, 128),
+    strides=(2, 2, 2),
+    num_res_units=2,
+    norm=Norm.BATCH,
+)
+----------------------------------------------
+##############################################
+----------------------------------------------
+six_levels_unet: 
+Dice Metric on test set: 0.4741
+patch_size = (160, 160, 64)
+train_transforms = Compose(
+    [
+        LoadImaged(keys=["image", "label"]),
+        EnsureChannelFirstd(keys=["image", "label"]),
+        NormalizeIntensityd(
+            keys=["image"],
+            nonzero=True,
+            channel_wise=False
+        ),
+        CropForegroundd(keys=["image", "label"], source_key="image"),
+        Orientationd(keys=["image", "label"], axcodes="RAS"),
+        Spacingd(keys=["image", "label"], pixdim=(1.0, 1.0, 1.0), mode=("bilinear", "nearest")),
+
+        RandFlipd(keys=["image", "label"], spatial_axis=[0], prob=0.5),
+        RandFlipd(keys=["image", "label"], spatial_axis=[1], prob=0.5),
+        RandFlipd(keys=["image", "label"], spatial_axis=[2], prob=0.5),
+        RandCropByPosNegLabeld(
+            keys=["image", "label"],
+            label_key="label",
+            spatial_size=patch_size,
+            pos=1,
+            neg=1,
+            num_samples=4,
+            image_key="image",
+            image_threshold=0,
+        ),
+    ]
+)
+model = UNet(
+    spatial_dims=3,
+    in_channels=1,
+    out_channels=3,
+    channels=(16, 32, 64, 128, 256, 512),
+    strides=(2, 2, 2, 2, 2),
+    num_res_units=2,
+    norm=Norm.BATCH,
+)
+----------------------------------------------
+##############################################
+----------------------------------------------
+invertd_added: 
+Dice Metric on test set: 0.4447
+patch_size = (160, 160, 64)
+train_transforms = Compose(
+    [
+        LoadImaged(keys=["image", "label"]),
+        EnsureChannelFirstd(keys=["image", "label"]),
+        NormalizeIntensityd(
+            keys=["image"],
+            nonzero=True,
+            channel_wise=False
+        ),
+        CropForegroundd(keys=["image", "label"], source_key="image"),
+        Orientationd(keys=["image", "label"], axcodes="RAS"),
+        Spacingd(keys=["image", "label"], pixdim=(1.0, 1.0, 1.0), mode=("bilinear", "nearest")),
+
+        RandFlipd(keys=["image", "label"], spatial_axis=[0], prob=0.5),
+        RandFlipd(keys=["image", "label"], spatial_axis=[1], prob=0.5),
+        RandFlipd(keys=["image", "label"], spatial_axis=[2], prob=0.5),
+        RandCropByPosNegLabeld(
+            keys=["image", "label"],
+            label_key="label",
+            spatial_size=patch_size,
+            pos=1,
+            neg=1,
+            num_samples=4,
+            image_key="image",
+            image_threshold=0,
+        ),
+    ]
+)
+
+----------------------------------------------
+##############################################
+----------------------------------------------
+bigger_patch_dh: 
+Dice Metric on test set: 0.5091
+Tesla A100 x2 500W per 164m
+k-fold = 5
+patch_size = (256, 256, 96)
+train_transforms = Compose(
+    [
+        LoadImaged(keys=["image", "label"]),
+        EnsureChannelFirstd(keys=["image", "label"]),
+        NormalizeIntensityd(
+            keys=["image"],
+            nonzero=True,
+            channel_wise=False
+        ),
+        CropForegroundd(keys=["image", "label"], source_key="image"),
+        Orientationd(keys=["image", "label"], axcodes="RAS"),
+        Spacingd(keys=["image", "label"], pixdim=(1.0, 1.0, 1.0), mode=("bilinear", "nearest")),
+        
+        RandCropByPosNegLabeld(
+            keys=["image", "label"],
+            label_key="label",
+            spatial_size=patch_size,
+            pos=10,
+            neg=10,
+            num_samples=4,
+            image_key="image",
+            image_threshold=0,
+        ),
+    ]
+)
+model = UNet(
+    spatial_dims=3,
+    in_channels=1,
+    out_channels=3,
+    channels=(16, 32, 64, 128, 256),
+    strides=(2, 2, 2, 2),
+    num_res_units=2,
+    norm=Norm.BATCH,
+)
+
+
+
+----------------------------------------------
+##############################################
+----------------------------------------------
+kfold_norm_i: 
+Dice Metric on test set: 0.4869
+k-fold = 5
+patch_size = (128, 128, 64)
+train_transforms = Compose(
+    [
+        LoadImaged(keys=["image", "label"]),
+        EnsureChannelFirstd(keys=["image", "label"]),
+        NormalizeIntensityd(
+            keys=["image"],
+            nonzero=True,
+            channel_wise=False
+        ),
+        CropForegroundd(keys=["image", "label"], source_key="image"),
+        Orientationd(keys=["image", "label"], axcodes="RAS"),
+        Spacingd(keys=["image", "label"], pixdim=(1.0, 1.0, 1.0), mode=("bilinear", "nearest")),
+        
+        RandCropByPosNegLabeld(
+            keys=["image", "label"],
+            label_key="label",
+            spatial_size=patch_size,
+            pos=10,
+            neg=10,
+            num_samples=4,
+            image_key="image",
+            image_threshold=0,
+        ),
+    ]
+)
+model = UNet(
+    spatial_dims=3,
+    in_channels=1,
+    out_channels=3,
+    channels=(16, 32, 64, 128, 256),
+    strides=(2, 2, 2, 2),
+    num_res_units=2,
+    norm=Norm.BATCH,
+)
